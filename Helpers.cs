@@ -2,7 +2,7 @@
 using System.Linq;
 using CLI = System.Console;
 
-namespace Console
+namespace ConsoleMenu
 {
     public static class Helpers
     {
@@ -72,7 +72,7 @@ namespace Console
         public static void Menu(string title, params (string title, Action action, bool visible)[] list)
             => list[Menu(title, list.Select(l => (l.title, l.visible)).ToArray())].action();
 
-        public static T Menu<T>(string title, T[] elements, Func<T, string> toTitle, Func<T, bool> toVisible = null)
+        public static T Menu<T>(string title, System.Collections.Generic.IList<T> elements, Func<T, string> toTitle, Func<T, bool> toVisible = null)
         {
             toVisible = toVisible ?? (_ => true);
             return elements[Menu(title, elements.Select(elem => (toTitle(elem), toVisible(elem))).ToArray())];
