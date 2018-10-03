@@ -4,6 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>A Simple Console Menu</Description>
+    <PackageProjectUrl>https://github.com/FaustVX/Console.Menu</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/FaustVX/Console.Menu/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>dotnet csharp console menu</PackageTags>
   </PropertyGroup>
 
 </Project>
