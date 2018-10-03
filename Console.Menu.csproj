@@ -7,6 +7,9 @@
     <PackageProjectUrl>https://github.com/FaustVX/Console.Menu</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/FaustVX/Console.Menu/blob/master/LICENSE</PackageLicenseUrl>
     <PackageTags>dotnet csharp console menu</PackageTags>
+    <Version>1.0.2</Version>
+    <Authors>FaustVX</Authors>
+    <PackageReleaseNotes>Added an options Property</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

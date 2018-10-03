@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Linq;
-using CLI = System.Console;
 
 namespace ConsoleMenu
 {
     public static class Helpers
     {
+        public static (string SelectedChar, ConsoleColor NormalColor, ConsoleColor NotVisibleColor) Options
+            = (">", ConsoleColor.Blue, ConsoleColor.Red);
+
         public static void Write(string text, ConsoleColor foregroundColor)
         {
-            var old = CLI.ForegroundColor;
-            CLI.ForegroundColor = foregroundColor;
-            CLI.Write(text);
-            CLI.ForegroundColor = old;
+            var old = Console.ForegroundColor;
+            Console.ForegroundColor = foregroundColor;
+            Console.Write(text);
+            Console.ForegroundColor = old;
 
         }
 
@@ -23,17 +25,17 @@ namespace ConsoleMenu
 
             while (true)
             {
-                CLI.Clear();
+                Console.Clear();
 
-                CLI.WriteLine(title);
+                Console.WriteLine(title);
                 for (var i = 0; i < list.Length; i++)
                 {
-                    CLI.Write($"{(i == selected ? ">" : "")} {i}- ");
-                    Write(list[i].title, list[i].visible ? ConsoleColor.Blue : ConsoleColor.Red);
-                    CLI.WriteLine();
+                    Console.Write($"{(i == selected ? Options.SelectedChar : "")} {i}- ");
+                    Write(list[i].title, list[i].visible ? Options.NormalColor : Options.NotVisibleColor);
+                    Console.WriteLine();
                 }
 
-                switch (CLI.ReadKey().Key)
+                switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.PageUp:
                         selected = 0;
@@ -63,7 +65,7 @@ namespace ConsoleMenu
                     case ConsoleKey.Enter:
                         if (!list[selected].visible)
                             continue;
-                        CLI.Clear();
+                        Console.Clear();
                         return selected + offset;
                 }
             }
