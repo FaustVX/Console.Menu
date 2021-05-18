@@ -30,7 +30,7 @@ namespace ConsoleMenu
                 Console.WriteLine(title);
                 for (var i = 0; i < list.Length; i++)
                 {
-                    Console.Write($"{(i == selected ? Options.SelectedChar : "")} {i}- ");
+                    Console.Write($"{(i == selected ? Options.SelectedChar : "-")} {i}- ");
                     Write(list[i].title, list[i].visible ? Options.NormalColor : Options.NotVisibleColor);
                     Console.WriteLine();
                 }
@@ -67,6 +67,10 @@ namespace ConsoleMenu
                             continue;
                         Console.Clear();
                         return selected + offset;
+                    case >= ConsoleKey.D0 and <= ConsoleKey.D9 and var num when (num - ConsoleKey.D0) <= list.Length:
+                        return (num - ConsoleKey.D0) + offset;
+                    case >= ConsoleKey.NumPad0 and <= ConsoleKey.NumPad9 and var num when (num - ConsoleKey.NumPad0) <= list.Length:
+                        return (num - ConsoleKey.NumPad0) + offset;
                 }
             }
         }
@@ -79,5 +83,9 @@ namespace ConsoleMenu
             toVisible = toVisible ?? (_ => true);
             return elements[Menu(title, elements.Select(elem => (toTitle(elem), toVisible(elem))).ToArray())];
         }
+
+        public static T Menu<T>(string title, Func<T, string> toTitle = null!, Func<T, bool> toVisible = null!)
+            where T : struct, Enum
+            => Menu<T>(title, (T[])Enum.GetValues(typeof(T)), toTitle ?? (t => t.ToString()), toVisible);
     }
 }
