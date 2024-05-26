@@ -5,14 +5,20 @@ using System.Linq;
 #if NET8_0_OR_GREATER
 
 using static Helpers;
+using System.Threading.Tasks;
+
 Menu("Hello", "1", "2");
 _ = Menu("My Menu", ['e', 'r', 't', 'y'], toTitle: e => e.ToString(), toVisible: e => true);
-Menu("My Menu", ("Menu 1", () => DoAction1()), ("Menu 2", () => DoAction2(), IsVisible: false));
+Menu("My Menu", ("Menu 1", DoAction1), ("Menu 2", DoAction2, IsVisible: false));
+_ = await Menu<Task<int>>("My Menu", ("Menu 1", () => Task.FromResult(DoFunc1()), IsVisible: false), ("Menu 2", DoFunc2));
 _ = Menu("Continue ?", [true, false], toTitle: e => e ? "Yes" : "No");
 _ = Menu<E>("Select value");
 
-static void DoAction1() {};
-static void DoAction2() {};
+static void DoAction1() {}
+static void DoAction2() {}
+
+static int DoFunc1() => 1;
+static Task<int> DoFunc2() => Task.FromResult(2);
 enum E { E1, E2, E3};
 
 #pragma warning disable CA1050 // Declare types in namespaces
@@ -39,6 +45,15 @@ public readonly record struct ItemWithAction(string Title, Action Action, bool I
 
     public static implicit operator ItemWithAction((string Title, Action Action) tuple)
     => new(tuple.Title, tuple.Action);
+}
+
+public readonly record struct ItemWithFunc<T>(string Title, Func<T> Func, bool IsVisible = true)
+{
+    public static implicit operator ItemWithFunc<T>((string Title, Func<T> Func, bool IsVisible) tuple)
+    => new(tuple.Title, tuple.Func, tuple.IsVisible);
+
+    public static implicit operator ItemWithFunc<T>((string Title, Func<T> Func) tuple)
+    => new(tuple.Title, tuple.Func);
 }
 
 public static class Helpers
@@ -114,6 +129,9 @@ public static class Helpers
 
     public static void Menu(string title, params ItemWithAction[] list)
         => list[Menu(title, list.Select<ItemWithAction, Item>(l => (l.Title, l.IsVisible)).ToArray())].Action();
+
+    public static T Menu<T>(string title, params ItemWithFunc<T>[] list)
+        => list[Menu(title, list.Select<ItemWithFunc<T>, Item>(l => (l.Title, l.IsVisible)).ToArray())].Func();
 
     public static T Menu<T>(string title, IList<T> elements, Func<T, string> toTitle, Func<T, bool> toVisible = null)
     {
