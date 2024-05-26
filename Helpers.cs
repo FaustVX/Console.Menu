@@ -63,8 +63,7 @@ public static class Helpers
 
     public static void Write(string text, ConsoleColor foregroundColor)
     {
-        var old = Console.ForegroundColor;
-        Console.ForegroundColor = foregroundColor;
+        (var old, Console.ForegroundColor) = (Console.ForegroundColor, foregroundColor);
         Console.Write(text);
         Console.ForegroundColor = old;
     }
@@ -133,13 +132,13 @@ public static class Helpers
     public static T Menu<T>(string title, params ItemWithFunc<T>[] list)
         => list[Menu(title, list.Select<ItemWithFunc<T>, Item>(l => (l.Title, l.IsVisible)).ToArray())].Func();
 
-    public static T Menu<T>(string title, IList<T> elements, Func<T, string> toTitle, Func<T, bool> toVisible = null)
+    public static T Menu<T>(string title, IList<T> elements, Func<T, string> toTitle, Func<T, bool>? toVisible = null)
     {
         toVisible ??= (_ => true);
         return elements[Menu(title, elements.Select<T, Item>(elem => (toTitle(elem), toVisible(elem))).ToArray())];
     }
 
-    public static T Menu<T>(string title, Func<T, string> toTitle = null!, Func<T, bool> toVisible = null!)
+    public static T Menu<T>(string title, Func<T, string>? toTitle = null, Func<T, bool>? toVisible = null)
         where T : struct, Enum
         => Menu(title, (T[])Enum.GetValues(typeof(T)), toTitle ?? (t => t.ToString()), toVisible);
 }
