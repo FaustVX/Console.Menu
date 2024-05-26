@@ -15,6 +15,7 @@ static void DoAction1() {};
 static void DoAction2() {};
 enum E { E1, E2, E3};
 
+#pragma warning disable CA1050 // Declare types in namespaces
 #else
 
 namespace ConsoleMenu;
