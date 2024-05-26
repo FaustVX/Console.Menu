@@ -2,7 +2,42 @@
 using System.Collections.Generic;
 using System.Linq;
 
+#if NET8_0_OR_GREATER
+
+using static Helpers;
+Menu("Hello", "1", "2");
+_ = Menu("My Menu", ['e', 'r', 't', 'y'], toTitle: e => e.ToString(), toVisible: e => true);
+Menu("My Menu", ("Menu 1", () => DoAction1()), ("Menu 2", () => DoAction2(), false));
+_ = Menu("Continue ?", [true, false], toTitle: e => e ? "Yes" : "No");
+_ = Menu<E>("Select value");
+
+static void DoAction1() {};
+static void DoAction2() {};
+enum E { E1, E2, E3};
+
+#else
+
 namespace ConsoleMenu;
+
+#endif
+
+public readonly record struct Item(string Title, bool IsVisible = true)
+{
+    public static implicit operator Item(string Title)
+    => new(Title);
+
+    public static implicit operator Item((string Title, bool IsVisible) tuple)
+    => new(tuple.Title, tuple.IsVisible);
+}
+
+public readonly record struct ItemWithAction(string Title, Action Action, bool IsVisible = true)
+{
+    public static implicit operator ItemWithAction((string Title, Action Action, bool IsVisible) tuple)
+    => new(tuple.Title, tuple.Action, tuple.IsVisible);
+
+    public static implicit operator ItemWithAction((string Title, Action Action) tuple)
+    => new(tuple.Title, tuple.Action);
+}
 
 public static class Helpers
 {
@@ -17,11 +52,11 @@ public static class Helpers
         Console.ForegroundColor = old;
     }
 
-    public static int Menu(string title, params (string title, bool visible)[] list)
+    public static int Menu(string title, params Item[] list)
     {
         var selected = 0;
-        var offset = list.TakeWhile(l => !l.visible).Count();
-        list = list.Skip(offset).Reverse().SkipWhile(l => !l.visible).Reverse().ToArray();
+        var offset = list.TakeWhile(l => !l.IsVisible).Count();
+        list = list.Skip(offset).Reverse().SkipWhile(l => !l.IsVisible).Reverse().ToArray();
 
         while (true)
         {
@@ -31,7 +66,7 @@ public static class Helpers
             for (var i = 0; i < list.Length; i++)
             {
                 Console.Write($"{(i == selected ? Options.SelectedChar : "-")} {i}- ");
-                Write(list[i].title, list[i].visible ? Options.NormalColor : Options.NotVisibleColor);
+                Write(list[i].Title, list[i].IsVisible ? Options.NormalColor : Options.NotVisibleColor);
                 Console.WriteLine();
             }
 
@@ -50,7 +85,7 @@ public static class Helpers
                             selected--;
                         else
                             selected = list.Length - 1;
-                    } while (!list[selected].visible);
+                    } while (!list[selected].IsVisible);
                     break;
                 case ConsoleKey.DownArrow:
                     do
@@ -59,11 +94,11 @@ public static class Helpers
                             selected++;
                         else
                             selected = 0;
-                    } while (!list[selected].visible);
+                    } while (!list[selected].IsVisible);
                     break;
                 case ConsoleKey.RightArrow:
                 case ConsoleKey.Enter:
-                    if (!list[selected].visible)
+                    if (!list[selected].IsVisible)
                         continue;
                     Console.Clear();
                     return selected + offset;
@@ -75,13 +110,13 @@ public static class Helpers
         }
     }
 
-    public static void Menu(string title, params (string title, Action action, bool visible)[] list)
-        => list[Menu(title, list.Select(l => (l.title, l.visible)).ToArray())].action();
+    public static void Menu(string title, params ItemWithAction[] list)
+        => list[Menu(title, list.Select<ItemWithAction, Item>(l => (l.Title, l.IsVisible)).ToArray())].Action();
 
     public static T Menu<T>(string title, IList<T> elements, Func<T, string> toTitle, Func<T, bool> toVisible = null)
     {
         toVisible ??= (_ => true);
-        return elements[Menu(title, elements.Select(elem => (toTitle(elem), toVisible(elem))).ToArray())];
+        return elements[Menu(title, elements.Select<T, Item>(elem => (toTitle(elem), toVisible(elem))).ToArray())];
     }
 
     public static T Menu<T>(string title, Func<T, string> toTitle = null!, Func<T, bool> toVisible = null!)

@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <OutputType Condition="'$(TargetFramework)' != 'netstandard2.0' ">Exe</OutputType>
     <LangVersion>12</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>A Simple Console Menu</Description>
@@ -11,5 +12,13 @@
     <Version>1.1</Version>
     <Authors>FaustVX</Authors>
   </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="BackwardsCompatibleFeatures" Version="2.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>compile</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>

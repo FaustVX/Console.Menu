@@ -4,7 +4,7 @@ A Simple Console Menu
 ## Using the menu
 (this menu will return the selected item)
 ``` csharp
-char selected = Menu("My Menu", ['e', 'r', 't', 'y'], title: e => e.ToString(), visible: e => true);
+char selected = Menu("My Menu", ['e', 'r', 't', 'y'], toTitle: e => e.ToString(), toVisible: e => true);
 ```
 or (thiw will execute the associated action)
 ``` csharp
@@ -12,7 +12,7 @@ Menu("My Menu", ("Menu 1", () => DoAction1(), visible: true), ("Menu 2", () => D
 ```
 or (an easy Yes/No menu)
 ``` csharp
-bool selected = Menu("Continue ?", [true, false], title: e => e ? "Yes" : "No");
+bool selected = Menu("Continue ?", [true, false], toTitle: e => e ? "Yes" : "No");
 ```
 or (the simplest form, with an enum)
 ``` csharp
