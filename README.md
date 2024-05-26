@@ -6,9 +6,9 @@ A Simple Console Menu
 ``` csharp
 char selected = Menu("My Menu", ['e', 'r', 't', 'y'], toTitle: e => e.ToString(), toVisible: e => true);
 ```
-or (thiw will execute the associated action)
+or (this will execute the associated action)
 ``` csharp
-Menu("My Menu", ("Menu 1", () => DoAction1(), visible: true), ("Menu 2", () => DoAction2(), visible: false));
+Menu("My Menu", ("Menu 1", () => DoAction1(), IsVisible: true), ("Menu 2", () => DoAction2(), IsVisible: false));
 ```
 or (an easy Yes/No menu)
 ``` csharp

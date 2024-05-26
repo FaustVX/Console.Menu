@@ -7,7 +7,7 @@ using System.Linq;
 using static Helpers;
 Menu("Hello", "1", "2");
 _ = Menu("My Menu", ['e', 'r', 't', 'y'], toTitle: e => e.ToString(), toVisible: e => true);
-Menu("My Menu", ("Menu 1", () => DoAction1()), ("Menu 2", () => DoAction2(), false));
+Menu("My Menu", ("Menu 1", () => DoAction1()), ("Menu 2", () => DoAction2(), IsVisible: false));
 _ = Menu("Continue ?", [true, false], toTitle: e => e ? "Yes" : "No");
 _ = Menu<E>("Select value");
 
@@ -16,6 +16,7 @@ static void DoAction2() {};
 enum E { E1, E2, E3};
 
 #pragma warning disable CA1050 // Declare types in namespaces
+
 #else
 
 namespace ConsoleMenu;
