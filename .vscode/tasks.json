@@ -22,6 +22,37 @@
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "upload new version",
+            "type": "shell",
+            "command": "${workspaceFolder}/bump_version.sh",
+            "args": [
+                "${input:version}",
+                "${input:message}"
+            ],
+            "windows": {
+                "command": "${workspaceFolder}\\bump_version.ps1"
+            },
+            "options": {
+                "statusbar": {
+                    "running": {
+                        "label": "uploading"
+                    }
+                }
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "version",
+            "type": "promptString",
+            "description": "version"
+        },
+        {
+            "id": "message",
+            "type": "promptString",
+            "description": "commit message (optional)"
         }
     ]
 }
