@@ -30,7 +30,7 @@
   <PropertyGroup>
     <PackageId>Console.Menu</PackageId>
     <Description>A Simple Console Menu</Description>
-    <Version>2.1.0</Version>
+    <Version>2.2.0-beta1</Version>
     <Authors>FaustVX</Authors>
     <RepositoryUrl>https://github.com/FaustVX/Console.Menu</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
