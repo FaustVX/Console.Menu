@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-#if NET8_0_OR_GREATER
+#if EXECUTE
 
 using static Helpers;
 using System.Threading.Tasks;
