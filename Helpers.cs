@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -68,7 +68,7 @@ public static class Helpers
         Console.ForegroundColor = old;
     }
 
-    public static int Menu(string title, params Item[] list)
+    public static int Menu(string title, params IReadOnlyList<Item> list)
     {
         var selected = 0;
         var offset = list.TakeWhile(l => !l.IsVisible).Count();
@@ -79,7 +79,7 @@ public static class Helpers
             Console.Clear();
 
             Console.WriteLine(title);
-            for (var i = 0; i < list.Length; i++)
+            for (var i = 0; i < list.Count; i++)
             {
                 Console.Write($"{(i == selected ? Options.SelectedChar : "-")} {i}- ");
                 Write(list[i].Title, list[i].IsVisible ? Options.NormalColor : Options.NotVisibleColor);
@@ -92,7 +92,7 @@ public static class Helpers
                     selected = 0;
                     break;
                 case ConsoleKey.PageDown:
-                    selected = list.Length - 1;
+                    selected = list.Count - 1;
                     break;
                 case ConsoleKey.UpArrow:
                     do
@@ -100,13 +100,13 @@ public static class Helpers
                         if (selected > 0)
                             selected--;
                         else
-                            selected = list.Length - 1;
+                            selected = list.Count - 1;
                     } while (!list[selected].IsVisible);
                     break;
                 case ConsoleKey.DownArrow:
                     do
                     {
-                        if (selected < list.Length - 1)
+                        if (selected < list.Count - 1)
                             selected++;
                         else
                             selected = 0;
@@ -118,21 +118,21 @@ public static class Helpers
                         continue;
                     Console.Clear();
                     return selected + offset;
-                case >= ConsoleKey.D0 and <= ConsoleKey.D9 and var num when (num - ConsoleKey.D0) <= list.Length:
+                case >= ConsoleKey.D0 and <= ConsoleKey.D9 and var num when (num - ConsoleKey.D0) <= list.Count:
                     return num - ConsoleKey.D0 + offset;
-                case >= ConsoleKey.NumPad0 and <= ConsoleKey.NumPad9 and var num when (num - ConsoleKey.NumPad0) <= list.Length:
+                case >= ConsoleKey.NumPad0 and <= ConsoleKey.NumPad9 and var num when (num - ConsoleKey.NumPad0) <= list.Count:
                     return num - ConsoleKey.NumPad0 + offset;
             }
         }
     }
 
-    public static void Menu(string title, params ItemWithAction[] list)
+    public static void Menu(string title, params IReadOnlyList<ItemWithAction> list)
         => list[Menu(title, list.Select<ItemWithAction, Item>(l => (l.Title, l.IsVisible)).ToArray())].Action();
 
-    public static T Menu<T>(string title, params ItemWithFunc<T>[] list)
+    public static T Menu<T>(string title, params IReadOnlyList<ItemWithFunc<T>> list)
         => list[Menu(title, list.Select<ItemWithFunc<T>, Item>(l => (l.Title, l.IsVisible)).ToArray())].Func();
 
-    public static T Menu<T>(string title, IList<T> elements, Func<T, string> toTitle, Func<T, bool>? toVisible = null)
+    public static T Menu<T>(string title, IReadOnlyList<T> elements, Func<T, string> toTitle, Func<T, bool>? toVisible = null)
     {
         toVisible ??= (_ => true);
         return elements[Menu(title, elements.Select<T, Item>(elem => (toTitle(elem), toVisible(elem))).ToArray())];

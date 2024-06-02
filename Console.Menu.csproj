@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net9.0</TargetFrameworks>
     <OutputType Condition="'$(TargetFramework)' != 'netstandard2.0'">Exe</OutputType>
     <DefineConstants Condition="'$(TargetFramework)' != 'netstandard2.0'">$(DefineConstants);EXECUTE</DefineConstants>
-    <LangVersion>12</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Nullable>Enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -17,13 +17,13 @@
 
   <Target Name="_ExcludeTargetFramework" AfterTargets="_GetTargetFrameworksOutput" BeforeTargets="_WalkEachTargetPerFramework">
     <ItemGroup>
-      <_TargetFrameworks Remove="net8.0" />
+      <_TargetFrameworks Remove="net9.0" />
     </ItemGroup>
   </Target>
 
   <Target Name="_ExcludeTargetFrameworkDependency" AfterTargets="_WalkEachTargetPerFramework" BeforeTargets="GenerateNuspec">
     <ItemGroup>
-      <_FrameworksWithSuppressedDependencies Include="net8.0" />
+      <_FrameworksWithSuppressedDependencies Include="net9.0" />
     </ItemGroup>
   </Target>
 
