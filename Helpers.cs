@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 #if EXECUTE
 
 using static Helpers;
 using System.Threading.Tasks;
 
-Menu("Hello", "1", "2");
+Console.Menu("Hello", "1", "2");
 _ = Menu("My Menu", ['e', 'r', 't', 'y'], toTitle: e => e.ToString(), toVisible: e => true);
 Menu("My Menu", ("Menu 1", DoAction1), ("Menu 2", DoAction2, IsVisible: false));
 _ = await Menu<Task<int>>("My Menu", ("Menu 1", () => Task.FromResult(DoFunc1()), IsVisible: false), ("Menu 2", DoFunc2));
@@ -60,85 +61,98 @@ public static class Helpers
 {
     public static (string SelectedChar, ConsoleColor NormalColor, ConsoleColor NotVisibleColor) Options
         = (">", ConsoleColor.Blue, ConsoleColor.Red);
-
-    public static void Write(string text, ConsoleColor foregroundColor)
+    extension(Console)
     {
-        (var old, Console.ForegroundColor) = (Console.ForegroundColor, foregroundColor);
-        Console.Write(text);
-        Console.ForegroundColor = old;
-    }
 
-    public static int Menu(string title, params IReadOnlyList<Item> list)
-    {
-        var selected = 0;
-        var offset = list.TakeWhile(l => !l.IsVisible).Count();
-        list = list.Skip(offset).Reverse().SkipWhile(l => !l.IsVisible).Reverse().ToArray();
-
-        while (true)
+        public static void Write(string text, ConsoleColor foregroundColor)
         {
-            Console.Clear();
+            (var old, Console.ForegroundColor) = (Console.ForegroundColor, foregroundColor);
+            Console.Write(text);
+            Console.ForegroundColor = old;
+        }
 
-            Console.WriteLine(title);
-            for (var i = 0; i < list.Count; i++)
-            {
-                Console.Write($"{(i == selected ? Options.SelectedChar : "-")} {i}- ");
-                Write(list[i].Title, list[i].IsVisible ? Options.NormalColor : Options.NotVisibleColor);
-                Console.WriteLine();
-            }
+        public static int Menu(string title, params IReadOnlyList<Item> list)
+        {
+            var selected = 0;
+            var offset = list.TakeWhile(l => !l.IsVisible).Count();
+            list = list.Skip(offset).Reverse().SkipWhile(l => !l.IsVisible).Reverse().ToArray();
 
-            switch (Console.ReadKey().Key)
+            while (true)
             {
-                case ConsoleKey.PageUp:
-                    selected = 0;
-                    break;
-                case ConsoleKey.PageDown:
-                    selected = list.Count - 1;
-                    break;
-                case ConsoleKey.UpArrow:
-                    do
-                    {
-                        if (selected > 0)
-                            selected--;
-                        else
-                            selected = list.Count - 1;
-                    } while (!list[selected].IsVisible);
-                    break;
-                case ConsoleKey.DownArrow:
-                    do
-                    {
-                        if (selected < list.Count - 1)
-                            selected++;
-                        else
-                            selected = 0;
-                    } while (!list[selected].IsVisible);
-                    break;
-                case ConsoleKey.RightArrow:
-                case ConsoleKey.Enter:
-                    if (!list[selected].IsVisible)
-                        continue;
-                    Console.Clear();
-                    return selected + offset;
-                case >= ConsoleKey.D0 and <= ConsoleKey.D9 and var num when (num - ConsoleKey.D0) <= list.Count:
-                    return num - ConsoleKey.D0 + offset;
-                case >= ConsoleKey.NumPad0 and <= ConsoleKey.NumPad9 and var num when (num - ConsoleKey.NumPad0) <= list.Count:
-                    return num - ConsoleKey.NumPad0 + offset;
+                Console.Clear();
+
+                Console.WriteLine(title);
+                for (var i = 0; i < list.Count; i++)
+                {
+                    Console.Write($"{(i == selected ? Options.SelectedChar : "-")} {i}- ");
+                    Write(list[i].Title, list[i].IsVisible ? Options.NormalColor : Options.NotVisibleColor);
+                    Console.WriteLine();
+                }
+
+                switch (Console.ReadKey().Key)
+                {
+                    case ConsoleKey.PageUp:
+                        selected = 0;
+                        break;
+                    case ConsoleKey.PageDown:
+                        selected = list.Count - 1;
+                        break;
+                    case ConsoleKey.UpArrow:
+                        do
+                        {
+                            if (selected > 0)
+                                selected--;
+                            else
+                                selected = list.Count - 1;
+                        } while (!list[selected].IsVisible);
+                        break;
+                    case ConsoleKey.DownArrow:
+                        do
+                        {
+                            if (selected < list.Count - 1)
+                                selected++;
+                            else
+                                selected = 0;
+                        } while (!list[selected].IsVisible);
+                        break;
+                    case ConsoleKey.RightArrow:
+                    case ConsoleKey.Enter:
+                        if (!list[selected].IsVisible)
+                            continue;
+                        Console.Clear();
+                        return selected + offset;
+                    case >= ConsoleKey.D0 and <= ConsoleKey.D9 and var num when (num - ConsoleKey.D0) <= list.Count:
+                        return num - ConsoleKey.D0 + offset;
+                    case >= ConsoleKey.NumPad0 and <= ConsoleKey.NumPad9 and var num when (num - ConsoleKey.NumPad0) <= list.Count:
+                        return num - ConsoleKey.NumPad0 + offset;
+                }
             }
         }
+
+        [OverloadResolutionPriority(1)]
+        public static void Menu(string title, params IReadOnlyList<ItemWithAction> list)
+            => list[Menu(title, list.Select<ItemWithAction, Item>(l => (l.Title, l.IsVisible)).ToArray())].Action();
+
+        public static T Menu<T>(string title, params IReadOnlyList<ItemWithFunc<T>> list)
+            => list[Menu(title, list.Select<ItemWithFunc<T>, Item>(l => (l.Title, l.IsVisible)).ToArray())].Func();
+
+        public static T Menu<T>(string title, IReadOnlyList<T> elements, Func<T, string> toTitle, Func<T, bool>? toVisible = null)
+        {
+            toVisible ??= (_ => true);
+            return elements[Menu(title, elements.Select<T, Item>(elem => (toTitle(elem), toVisible(elem))).ToArray())];
+        }
+
+        public static T Menu<T>(string title, Func<T, string>? toTitle = null, Func<T, bool>? toVisible = null)
+            where T : struct, System.Enum
+            => Menu(title, Enum.GetValues<T>(), toTitle ?? (t => t.ToString()), toVisible);
     }
-
-    public static void Menu(string title, params IReadOnlyList<ItemWithAction> list)
-        => list[Menu(title, list.Select<ItemWithAction, Item>(l => (l.Title, l.IsVisible)).ToArray())].Action();
-
-    public static T Menu<T>(string title, params IReadOnlyList<ItemWithFunc<T>> list)
-        => list[Menu(title, list.Select<ItemWithFunc<T>, Item>(l => (l.Title, l.IsVisible)).ToArray())].Func();
-
-    public static T Menu<T>(string title, IReadOnlyList<T> elements, Func<T, string> toTitle, Func<T, bool>? toVisible = null)
-    {
-        toVisible ??= (_ => true);
-        return elements[Menu(title, elements.Select<T, Item>(elem => (toTitle(elem), toVisible(elem))).ToArray())];
-    }
-
-    public static T Menu<T>(string title, Func<T, string>? toTitle = null, Func<T, bool>? toVisible = null)
-        where T : struct, Enum
-        => Menu(title, (T[])Enum.GetValues(typeof(T)), toTitle ?? (t => t.ToString()), toVisible);
 }
+
+#if NETSTANDARD
+file static class Enum
+{
+    public static T[] GetValues<T>()
+    where T : System.Enum
+    => (T[])System.Enum.GetValues(typeof(T));
+}
+#endif
